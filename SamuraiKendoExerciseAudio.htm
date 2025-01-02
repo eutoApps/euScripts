@@ -1,0 +1,116 @@
+<!--A Kendo and Shadowboxing exercise app.
+
+Created by Eric Utomo January 2022, updated January 2025-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kendo Training Clock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #slider-container {
+            margin-top: 20px;
+        }
+
+        #slider-container label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        #slider {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kendo Training Clock</h1>
+    <p>Click the button to practice slashing directions with your kendo stick.</p>
+
+    <div id="slider-container">
+        <label for="slider">Seconds between slashes:</label>
+        <input type="range" id="slider" min="1" max="5" step="1" value="1">
+        <span id="slider-value">1</span> seconds
+    </div>
+
+    <button onclick="startTraining()">Start Training</button>
+    <div id="output"></div>
+
+    <script>
+        const slider = document.getElementById('slider');
+        const sliderValue = document.getElementById('slider-value');
+
+        slider.addEventListener('input', () => {
+            sliderValue.textContent = slider.value;
+        });
+
+        async function startTraining() {
+            const clockHours = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+            const clockHoursSpelled = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+            const output = document.getElementById('output');
+            const delay = parseInt(slider.value) * 1000; // Convert seconds to milliseconds
+
+            output.innerHTML = ''; // Clear previous output
+
+            for (let i = clockHours.length; i > 0; i--) {
+                const randomIndex = Math.floor(Math.random() * clockHours.length);
+                const directionToSlash = clockHours.splice(randomIndex, 1)[0];
+                const text = clockHoursSpelled[directionToSlash - 1];
+
+                // Display the text on the page
+                const div = document.createElement('div');
+                div.textContent = text;
+                output.appendChild(div);
+
+                // Use the Web Speech API to speak the text and wait for it to finish
+                await speakText(text);
+
+                // Wait for the specified delay before continuing
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        function speakText(text) {
+            return new Promise(resolve => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en';
+                utterance.rate = 1.0;
+
+                utterance.onend = resolve; // Resolve the promise when speaking finishes
+                speechSynthesis.speak(utterance);
+            });
+        }
+    </script>
+</body>
+</html>
